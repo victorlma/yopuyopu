@@ -1,3 +1,9 @@
+#include <raylib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#ifndef GAME_H_
+#define GAME_H_
 typedef struct {
 	int32_t	col;
 	int32_t	row;
@@ -21,4 +27,4 @@ typedef struct {
 	block_t		*pl_blk0;
 	block_t		*pl_blk1;
 } game_state_t;
-
+#endif

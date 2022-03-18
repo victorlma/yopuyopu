@@ -1,3 +1,4 @@
+#include "./game.h"
 static Rectangle  board_rect = {PADDING-2, PADDING-2, (COLUMNS * SQR_SIZE)+4, (ROWS * SQR_SIZE)+4};
 
 static Rectangle  next_rect = {  NEXT_BEGIN_POS-2, PADDING-2,
@@ -122,6 +123,7 @@ bool check_end_turn(game_state_t *game_state)
 			else { return false;}
 		}
 	}
+	return false;
 }
 
 
