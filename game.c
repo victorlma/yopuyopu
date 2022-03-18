@@ -125,7 +125,7 @@ bool check_end_turn(game_state_t *game_state)
 }
 
 
-void rotate_block(game_state_t *game_state)
+void rotate_block(game_state_t *game_state, int32_t dir)
 {
 	bool moved;
 	if (game_state->pl_blk0->row >= 0){
@@ -133,24 +133,30 @@ void rotate_block(game_state_t *game_state)
 		switch (game_state->rot_ind) {
 			
 			case 0:
-				moved = move_block(game_state, blk_m, 1, 1);
+				moved = move_block(game_state, blk_m, 0 + dir, 1);
 				break;
 			case 1:
 				
-				moved = move_block(game_state, blk_m, -1, 1);
+				moved = move_block(game_state, blk_m, -1, 0 + dir);
 				break;
 			case 2:
 				
-				moved = move_block(game_state, blk_m, -1, -1);
+				moved = move_block(game_state, blk_m, 0 - dir, -1);
 				break;
 			case 3:
-				moved = move_block(game_state, blk_m, 1, -1);
+				moved = move_block(game_state, blk_m, 1, 0 - dir);
 				break;
 		
 		}
 		if (moved)
 		{
+		  if (dir == 1) {
 			if (++game_state->rot_ind > 3) game_state->rot_ind = 0;
+			
+		  }
+		  else {
+			if (--game_state->rot_ind < 0) game_state->rot_ind = 3;
+		  }
 		}
 	}
 }
@@ -160,7 +166,12 @@ void process_input(game_state_t *game_state)
 
 	if (IsKeyPressed(KEY_Z) && game_state->pl_blk1->row > -2) 
 	{
-		rotate_block(game_state);
+	        rotate_block(game_state, -1);
+		game_state->pl_down_time = 0;
+	}
+	if (IsKeyPressed(KEY_X) && game_state->pl_blk1->row > -2) 
+	{
+	        rotate_block(game_state, 1);
 		game_state->pl_down_time = 0;
 	}
 
