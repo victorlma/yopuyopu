@@ -93,6 +93,7 @@ bool move_block(game_state_t *game_state, block_t *block, int32_t nc, int32_t nr
 
 bool btm_coll(block_t *board_colors[ROWS][COLUMNS], block_t *block)
 {
+    if (block->row == 11) return true;
     if (board_colors[block->row+1][block->col] != 0){
         return true;   
     }
