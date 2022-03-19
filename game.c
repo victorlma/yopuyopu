@@ -340,7 +340,20 @@ int32_t check_collisions(game_state_t *game_state){
         }
     }
     
-
+    if (game_state->pl_blk1->row > -1 && game_state->rot_ind == 2){
+        if (btm_coll(game_state->board_colors, game_state->pl_blk1)){
+            game_state->pl_blk0->stopped = true;
+            game_state->pl_blk1->stopped = true;
+        }
+    
+    }
+    if (game_state->pl_blk1->row > -1 && game_state->rot_ind == 0){
+        if (btm_coll(game_state->board_colors, game_state->pl_blk0)){
+            game_state->pl_blk0->stopped = true;
+            game_state->pl_blk1->stopped = true;
+        }
+    
+    }
     if (game_state->pl_blk0->stopped && !game_state->pl_blk1->stopped){
         return 0;
     }
@@ -420,9 +433,30 @@ void game_update_drawing(game_state_t *game_state)
             }       
             else {
             
-                process_input(game_state);
-                move_blocks_down(game_state);
-                check_collisions(game_state);
+                switch(check_collisions(game_state))
+                {
+                    case -1:
+                        process_input(game_state);
+                        move_blocks_down(game_state);
+                        break;
+                    case 0:
+                            game_state->pl_down_time += GetFrameTime();
+                        if (game_state->pl_down_time > 0.05){
+                            move_block(game_state, game_state->pl_blk1, 0, 1, false);
+                            game_state->pl_down_time = 0;
+                        }
+                        break;
+                    case 1:
+                            game_state->pl_down_time += GetFrameTime();
+                        if (game_state->pl_down_time > 0.05){
+                            move_block(game_state, game_state->pl_blk0, 0, 1, false);
+                            game_state->pl_down_time = 0;
+                        }
+                        break;
+                    case 2:
+                        break;
+                
+                }
             }
         }
     }
