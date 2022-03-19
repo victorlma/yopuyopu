@@ -63,11 +63,14 @@ void set_ptr_rxc(game_state_t *game_state, block_t *block)
 }
 
 
-bool move_block(game_state_t *game_state, block_t *block, int32_t nc, int32_t nr)
+bool move_block(game_state_t *game_state, block_t *block, int32_t nc, int32_t nr, bool ignore)
 {
     int32_t ncol = block->col + nc;
     int32_t nrow = block->row + nr;
 
+    if (block->stopped){
+        return false;
+    }
 
     if (block->row < 0){
         if (game_state->board_colors[0][ncol] == 0){
@@ -88,6 +91,17 @@ bool move_block(game_state_t *game_state, block_t *block, int32_t nc, int32_t nr
 }
 
 
+bool btm_coll(block_t *board_colors[ROWS][COLUMNS], block_t *block)
+{
+    if (board_colors[block->row+1][block->col] != 0){
+        return true;   
+    }
+    return false;
+
+}
+
+
+
 bool check_end_turn(game_state_t *game_state)
 {
     if (game_state->pl_blk0->row == ROWS -1 || game_state->pl_blk1->row == ROWS -1 ) {
@@ -103,8 +117,8 @@ bool check_end_turn(game_state_t *game_state)
 
 
 
-        if (game_state->board_colors[game_state->pl_blk0->row+1][game_state->pl_blk0->col] != 0 &&
-            game_state->board_colors[game_state->pl_blk1->row+1][game_state->pl_blk1->col] != 0 )
+        if (btm_coll(game_state->board_colors, game_state->pl_blk0) &&
+            btm_coll(game_state->board_colors, game_state->pl_blk1))
         {
             
             
@@ -135,18 +149,18 @@ void rotate_block(game_state_t *game_state, int32_t dir)
         switch (game_state->rot_ind) {
             
             case 0:
-                moved = move_block(game_state, blk_m, 0 + dir, 1);
+                moved = move_block(game_state, blk_m, 0 + dir, 1, false);
                 break;
             case 1:
                 
-                moved = move_block(game_state, blk_m, -1, 0 + dir);
+                moved = move_block(game_state, blk_m, -1, 0 + dir, false);
                 break;
             case 2:
                 
-                moved = move_block(game_state, blk_m, 0 - dir, -1);
+                moved = move_block(game_state, blk_m, 0 - dir, -1, false);
                 break;
             case 3:
-                moved = move_block(game_state, blk_m, 1, 0 - dir);
+                moved = move_block(game_state, blk_m, 1, 0 - dir, false);
                 break;
         
         }
@@ -200,15 +214,15 @@ void process_input(game_state_t *game_state)
             if (game_state->rot_ind == 3) {
         
                 move_block(game_state,
-                           game_state->pl_blk0, 1, 0);
+                           game_state->pl_blk0, 1, 0, false);
                 move_block(game_state,
-                           game_state->pl_blk1, 1, 0);
+                           game_state->pl_blk1, 1, 0, false);
             }
             else{   
                 move_block(game_state,
-                           game_state->pl_blk1, 1, 0);
+                           game_state->pl_blk1, 1, 0, false);
                 move_block(game_state,
-                           game_state->pl_blk0, 1, 0);
+                           game_state->pl_blk0, 1, 0, false);
             }
             game_state->pl_side_time = .8f;
             
@@ -221,15 +235,15 @@ void process_input(game_state_t *game_state)
             
             if (game_state->rot_ind == 1){
                 move_block(game_state,
-                           game_state->pl_blk0, -1, 0);
+                           game_state->pl_blk0, -1, 0, false);
                 move_block(game_state,
-                           game_state->pl_blk1, -1, 0);
+                           game_state->pl_blk1, -1, 0, false);
             }
             else {
                 move_block(game_state,
-                           game_state->pl_blk1, -1, 0);
+                           game_state->pl_blk1, -1, 0, false);
                 move_block(game_state,
-                           game_state->pl_blk0, -1, 0);
+                           game_state->pl_blk0, -1, 0, false);
             
             }
             
@@ -313,6 +327,34 @@ void draw_board_entities(game_state_t *game_state)
 }
 
 
+int32_t check_collisions(game_state_t *game_state){
+    if (game_state->pl_blk1->row > -1 && 
+            (game_state->rot_ind == 1 || game_state->rot_ind == 3)){
+
+       
+        if (btm_coll(game_state->board_colors,game_state->pl_blk1)){
+            game_state->pl_blk1->stopped = true;
+        }
+        if (btm_coll(game_state->board_colors,game_state->pl_blk0)){
+            game_state->pl_blk0->stopped = true;
+        }
+    }
+    
+
+    if (game_state->pl_blk0->stopped && !game_state->pl_blk1->stopped){
+        return 0;
+    }
+    else if (game_state->pl_blk1->stopped && !game_state->pl_blk0->stopped){
+        return 1;
+    }
+    else if (game_state->pl_blk0->stopped && game_state->pl_blk1->stopped){
+        return 2;
+    }
+    else {
+        return -1;
+    }
+}
+
 
 void move_blocks_down(game_state_t *game_state)
 {
@@ -326,12 +368,12 @@ void move_blocks_down(game_state_t *game_state)
                     if (game_state->rot_ind == 0){
                         move_block(game_state, 
                                    &game_state->board[game_state->board_count-i],
-                                   0, 1);
+                                   0, 1, false);
                     }
                     else {
                         move_block(game_state, 
                                    game_state->pl_blk1+i,
-                                   0, 1);
+                                   0, 1, false);
                     }
                 }
                 else {
@@ -347,12 +389,12 @@ void move_blocks_down(game_state_t *game_state)
                 if (game_state->rot_ind == 0){
                     move_block(game_state, 
                                &game_state->board[game_state->board_count-i],
-                               0, 1);
+                               0, 1, false);
                 }
                 else {
                     move_block(game_state, 
                                game_state->pl_blk1+i,
-                               0, 1);
+                               0, 1, false);
                 }
             }
         
@@ -380,7 +422,7 @@ void game_update_drawing(game_state_t *game_state)
             
                 process_input(game_state);
                 move_blocks_down(game_state);
-
+                check_collisions(game_state);
             }
         }
     }

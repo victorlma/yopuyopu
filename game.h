@@ -7,7 +7,9 @@
 typedef struct {
     int32_t col;
     int32_t row;
+    bool    stopped;
     Color   color;
+
 } block_t;
 
 
