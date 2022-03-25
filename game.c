@@ -486,6 +486,7 @@ void test_block(game_state_t *game_state, block_t *blk){
         game_state->board_copy[blk->row][blk->col] = 0;
     }
     else if (compare_color(&game_state->being_matched->color, &blk->color)){
+        game_state->ml[game_state->matches] = blk;
         game_state->matches += 1;
         game_state->board_copy[blk->row][blk->col] = 0;
         
@@ -508,8 +509,13 @@ void test_block(game_state_t *game_state, block_t *blk){
     if (blk->row < ROWS-1){
         test_block(game_state, game_state->board_copy[blk->row+1][blk->col]);
     }
-    if (game_state->matches >= 3){
+    if (game_state->matches >= 3 && blk == game_state->being_matched){
         game_state->matched = true;
+        for (int i=0; i < game_state->matches; ++i){
+            game_state->ml[i]->del = true;
+            game_state->board_colors[game_state->ml[i]->row][game_state->ml[i]->col] = 0;
+
+        }
         blk->del = true;
         game_state->board_colors[blk->row][blk->col] = 0;
     }
@@ -595,7 +601,7 @@ void game_update_drawing(game_state_t *game_state)
             		case 2:
                         if (game_state->matched){
             		        game_state->pl_down_time += GetFrameTime();
-            		        if (game_state->pl_down_time > 0.1){
+            		        if (game_state->pl_down_time > 0.07){
                                 if (!move_all_down(game_state)){
                                     game_state->matched = 0;
                                     test_match(game_state);

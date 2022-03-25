@@ -30,6 +30,7 @@ typedef struct {
     block_t     board[ROWS*COLUMNS];
     block_t    *board_colors[ROWS][COLUMNS];
     block_t    *board_copy[ROWS][COLUMNS];
+    block_t     *ml[ROWS*COLUMNS]; //matched_list
     block_t     *pl_blk0;
     block_t     *pl_blk1;
     block_t     *being_matched;
