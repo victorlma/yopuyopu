@@ -2,7 +2,7 @@
 static Rectangle  board_rect = {PADDING-2, PADDING-2, (COLUMNS * SQR_SIZE)+4, (ROWS * SQR_SIZE)+4};
 
 static Rectangle  next_rect = {  NEXT_BEGIN_POS-2, PADDING-2,
-                                   (SQR_SIZE*2)+4, (SQR_SIZE *2)+4};
+    (SQR_SIZE*2)+4, (SQR_SIZE *2)+4};
 
 static Rectangle    next_positions[NEXT_NUM] = {
     (Rectangle) {NEXT_BEGIN_POS , PADDING , SQR_SIZE, SQR_SIZE},
@@ -15,8 +15,16 @@ static Rectangle    next_positions[NEXT_NUM] = {
 
 static Color    colors[5] = {LIME, DARKBLUE, GOLD, PURPLE, RED};
 
+static Color blank = BLANK;
 
-
+bool compare_color(Color *c1, Color *c2){
+    if (c1->r == c2->r && c1->g == c2->g && c1->b == c2->b){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 
 void lose(game_state_t *game_state)
@@ -68,13 +76,13 @@ bool move_block(game_state_t *game_state, block_t *block, int32_t nc, int32_t nr
     int32_t ncol = block->col + nc;
     int32_t nrow = block->row + nr;
 
-    if (block->stopped){
+    if (block->stopped && !ignore){
         return false;
     }
 
     if (block->row < 0){
         if (game_state->board_colors[0][ncol] == 0){
-        block->col = ncol < COLUMNS && ncol >=0 ? ncol : block->col; 
+	    block->col = ncol < COLUMNS && ncol >=0 ? ncol : block->col; 
         }
     }
     if (nrow >= 0 && ncol >= 0 && nrow < ROWS && ncol < COLUMNS &&
@@ -105,6 +113,10 @@ bool btm_coll(block_t *board_colors[ROWS][COLUMNS], block_t *block)
 
 bool check_end_turn(game_state_t *game_state)
 {
+    if ((game_state->pl_blk0->del == true || game_state->pl_blk1->del == true) &&
+            game_state->matched == 0){
+        return true;
+    }
     if (game_state->pl_blk0->row == ROWS -1 || game_state->pl_blk1->row == ROWS -1 ) {
         game_state->pl_turn_time += GetFrameTime();
         if (game_state->pl_turn_time > 0.3f) {
@@ -149,31 +161,31 @@ void rotate_block(game_state_t *game_state, int32_t dir)
         block_t * blk_m = game_state->pl_blk1;
         switch (game_state->rot_ind) {
             
-            case 0:
-                moved = move_block(game_state, blk_m, 0 + dir, 1, false);
-                break;
-            case 1:
+	case 0:
+	    moved = move_block(game_state, blk_m, 0 + dir, 1, false);
+	    break;
+	case 1:
                 
-                moved = move_block(game_state, blk_m, -1, 0 + dir, false);
-                break;
-            case 2:
+	    moved = move_block(game_state, blk_m, -1, 0 + dir, false);
+	    break;
+	case 2:
                 
-                moved = move_block(game_state, blk_m, 0 - dir, -1, false);
-                break;
-            case 3:
-                moved = move_block(game_state, blk_m, 1, 0 - dir, false);
-                break;
+	    moved = move_block(game_state, blk_m, 0 - dir, -1, false);
+	    break;
+	case 3:
+	    moved = move_block(game_state, blk_m, 1, 0 - dir, false);
+	    break;
         
         }
         if (moved)
         {
-          if (dir == 1) {
-            if (++game_state->rot_ind > 3) game_state->rot_ind = 0;
+	    if (dir == 1) {
+		if (++game_state->rot_ind > 3) game_state->rot_ind = 0;
             
-          }
-          else {
-            if (--game_state->rot_ind < 0) game_state->rot_ind = 3;
-          }
+	    }
+	    else {
+		if (--game_state->rot_ind < 0) game_state->rot_ind = 3;
+	    }
         }
     }
 }
@@ -183,12 +195,12 @@ void process_input(game_state_t *game_state)
 
     if (IsKeyPressed(KEY_Z) && game_state->pl_blk1->row > -2) 
     {
-            rotate_block(game_state, -1);
+	rotate_block(game_state, -1);
         game_state->pl_down_time = 0;
     }
     if (IsKeyPressed(KEY_X) && game_state->pl_blk1->row > -2) 
     {
-            rotate_block(game_state, 1);
+	rotate_block(game_state, 1);
         game_state->pl_down_time = 0;
     }
 
@@ -204,57 +216,58 @@ void process_input(game_state_t *game_state)
 
 
     if ((game_state->pl_blk1->col == 2 && game_state->pl_blk1->row == -1 && (
-        game_state->board_colors[game_state->pl_blk0->row+1][game_state->pl_blk0->col] != 0 &&
-        game_state->board_colors[game_state->pl_blk1->row+1][game_state->pl_blk1->col] != 0 )
-        ) || (game_state->pl_blk1->col == 2 && game_state->pl_blk1->row == -2 ))
+	     game_state->board_colors[game_state->pl_blk0->row+1][game_state->pl_blk0->col] != 0 &&
+	     game_state->board_colors[game_state->pl_blk1->row+1][game_state->pl_blk1->col] != 0 )
+	    ) || (game_state->pl_blk1->col == 2 && game_state->pl_blk1->row == -2 ))
     {;}
     else {          
-    if (IsKeyDown(KEY_RIGHT) && !IsKeyDown(KEY_LEFT)) {
+	if (IsKeyDown(KEY_RIGHT) && !IsKeyDown(KEY_LEFT)) {
         
-        if (game_state->pl_side_time <= 0) {        
-            if (game_state->rot_ind == 3) {
+	    if (game_state->pl_side_time <= 0) {        
+		if (game_state->rot_ind == 3) {
         
-                move_block(game_state,
-                           game_state->pl_blk0, 1, 0, false);
-                move_block(game_state,
-                           game_state->pl_blk1, 1, 0, false);
-            }
-            else{   
-                move_block(game_state,
-                           game_state->pl_blk1, 1, 0, false);
-                move_block(game_state,
-                           game_state->pl_blk0, 1, 0, false);
-            }
-            game_state->pl_side_time = .8f;
+		    move_block(game_state,
+			       game_state->pl_blk0, 1, 0, false);
+		    move_block(game_state,
+			       game_state->pl_blk1, 1, 0, false);
+		}
+		else{   
+		    move_block(game_state,
+			       game_state->pl_blk1, 1, 0, false);
+		    move_block(game_state,
+			       game_state->pl_blk0, 1, 0, false);
+		}
+		game_state->pl_side_time = .8f;
             
-        }
-        else { game_state->pl_side_time -= 0.15f;}
-    }
+	    }
+	    else { game_state->pl_side_time -= 0.15f;}
+	}
     
-    if (IsKeyDown(KEY_LEFT) && !IsKeyDown(KEY_RIGHT)) {
-        if (game_state->pl_side_time <= 0) {        
+	if (IsKeyDown(KEY_LEFT) && !IsKeyDown(KEY_RIGHT)) {
+	    if (game_state->pl_side_time <= 0) {        
             
-            if (game_state->rot_ind == 1){
-                move_block(game_state,
-                           game_state->pl_blk0, -1, 0, false);
-                move_block(game_state,
-                           game_state->pl_blk1, -1, 0, false);
-            }
-            else {
-                move_block(game_state,
-                           game_state->pl_blk1, -1, 0, false);
-                move_block(game_state,
-                           game_state->pl_blk0, -1, 0, false);
+		if (game_state->rot_ind == 1){
+		    move_block(game_state,
+			       game_state->pl_blk0, -1, 0, false);
+		    move_block(game_state,
+			       game_state->pl_blk1, -1, 0, false);
+		}
+		else {
+		    move_block(game_state,
+			       game_state->pl_blk1, -1, 0, false);
+		    move_block(game_state,
+			       game_state->pl_blk0, -1, 0, false);
             
-            }
+		}
             
             
-            game_state->pl_side_time = .8f;
-        }   
-        else { game_state->pl_side_time -= 0.15f;}
-    }
+		game_state->pl_side_time = .8f;
+	    }   
+	    else { game_state->pl_side_time -= 0.15f;}
+	}
     }
 }
+
 
 void init_turn(game_state_t *game_state)
 {
@@ -275,22 +288,54 @@ void init_turn(game_state_t *game_state)
             game_state->pl_next_time += GetFrameTime();
             if (game_state->pl_next_time > 0.2f) {
                 game_state->pl_next_time = 0;
+                int32_t bc_c;
 
-                ++game_state->board_count;
-                game_state->board[game_state->board_count] = game_state->next[0];
-                game_state->board[game_state->board_count].col = 2;
-                game_state->board[game_state->board_count].row = -2;
-                ++game_state->board_count;
-                game_state->board[game_state->board_count] = game_state->next[1];
-                game_state->board[game_state->board_count].col = 2;
-                game_state->board[game_state->board_count].row = -1;
-                game_state->pl_blk0 = &game_state->board[game_state->board_count];
-                game_state->pl_blk1 = &game_state->board[game_state->board_count-1];
+                for (int i=0; i < ROWS*COLUMNS; ++i){
+                    if (compare_color(&game_state->board[i].color, &blank)){
+                        game_state->board[i] = game_state->next[0];
+                        game_state->board[i].col = 2;
+                        game_state->board[i].row = -2;
+                        game_state->pl_blk1 = &game_state->board[i];
+                        ++game_state->board_count;
+                        bc_c = i +1;
+                        bc_c = i +1;
+                        break;
+                    }
+                    if (game_state->board[i].del){
+                        game_state->board[i] = game_state->next[0];
+                        game_state->board[i].col = 2;
+                        game_state->board[i].row = -2;
+                        game_state->pl_blk1 = &game_state->board[i];
+                        bc_c = i +1;
+                        break;
+                    }
+                }
+
+
+                for (int i=bc_c; i < ROWS*COLUMNS; ++i){
+                    if (compare_color(&game_state->board[i].color, &BLANK)){
+                        game_state->board[i] = game_state->next[1];
+                        game_state->board[i].col = 2;
+                        game_state->board[i].row = -1;
+                        ++game_state->board_count;
+                        game_state->pl_blk0 = &game_state->board[i];
+                        break;
+                    }
+                    if (game_state->board[i].del){
+                        game_state->board[i] = game_state->next[1];
+                        game_state->board[i].col = 2;
+                        game_state->board[i].row = -1;
+                        game_state->pl_blk0 = &game_state->board[i];
+                        break;
+                    }
+                }
+
                 game_state->next[0] = game_state->next[2];
                 game_state->next[1] = game_state->next[3];
                 game_state->nb_count = 2;
                 game_state->pl_control = 1;
                 game_state->rot_ind = 0;
+                game_state->matched = false;
                 game_state->pl_turn_time = 0;   
             }
 
@@ -304,33 +349,35 @@ void init_turn(game_state_t *game_state)
 void draw_board_entities(game_state_t *game_state)
 {
 
-        for (int i=0; i <= game_state->board_count; ++i) {
-            Rectangle   block_rect;
-            if (game_state->board[i].row < 0) {
-                block_rect =  (Rectangle) { 
-                    ( PADDING + (game_state->board[i].col * SQR_SIZE)),
-                    ( PADDING*2 + (game_state->board[i].row * SQR_SIZE)),
-                    SQR_SIZE, SQR_SIZE
-                };
-            
-            }
-            else {
-                block_rect = (Rectangle) {
-                    (PADDING + (game_state->board[i].col * SQR_SIZE)),
-                    (PADDING + (game_state->board[i].row * SQR_SIZE)),
-                    SQR_SIZE, SQR_SIZE
-                };
-            }
-            
-            DrawRectangleRec(block_rect, game_state->board[i].color);
-            DrawRectangleLinesEx(block_rect, LINE_THICK, BLACK);
-        }
+    for (int i=0; i <= game_state->board_count; ++i) {
+	Rectangle   block_rect;
+    if (!game_state->board[i].del){
+      if (game_state->board[i].row < 0) {
+          block_rect =  (Rectangle) { 
+      	( PADDING + (game_state->board[i].col * SQR_SIZE)),
+      	( PADDING*2 + (game_state->board[i].row * SQR_SIZE)),
+      	SQR_SIZE, SQR_SIZE
+          };
+              
+      }
+      else {
+          block_rect = (Rectangle) {
+      	(PADDING + (game_state->board[i].col * SQR_SIZE)),
+      	(PADDING + (game_state->board[i].row * SQR_SIZE)),
+      	SQR_SIZE, SQR_SIZE
+          };
+      }
+              
+      DrawRectangleRec(block_rect, game_state->board[i].color);
+      DrawRectangleLinesEx(block_rect, LINE_THICK, BLACK);
+      }
+    }
 }
 
 
 int32_t check_collisions(game_state_t *game_state){
     if (game_state->pl_blk1->row > -1 && 
-            (game_state->rot_ind == 1 || game_state->rot_ind == 3)){
+	(game_state->rot_ind == 1 || game_state->rot_ind == 3)){
 
        
         if (btm_coll(game_state->board_colors,game_state->pl_blk1)){
@@ -375,26 +422,36 @@ void move_blocks_down(game_state_t *game_state)
 
     game_state->pl_down_time += GetFrameTime();
     if (game_state->pl_down_time > .3f) {
-    
+        block_t *pl0;
+        block_t *pl1;
         for (int i=0; i < 2; i++) {
-            if (game_state->board[game_state->board_count-i].row <= 0) {
-                if (game_state->board[game_state->board_count-i].row == 0) {
+            if (i == 0){
+                pl0 = game_state->pl_blk0;    
+                pl1 = game_state->pl_blk1;    
+            }
+            else {
+            
+                pl0 = game_state->pl_blk1;    
+                pl1 = game_state->pl_blk0;    
+            }
+            if (pl0->row <= 0) {
+                if (pl0->row == 0) {
                     if (game_state->rot_ind == 0){
                         move_block(game_state, 
-                                   &game_state->board[game_state->board_count-i],
+                                   pl0,
                                    0, 1, false);
                     }
                     else {
                         move_block(game_state, 
-                                   game_state->pl_blk1+i,
+                                   pl1,
                                    0, 1, false);
                     }
                 }
                 else {
-                    game_state->board[game_state->board_count-i].row += 1;
-                    if (game_state->board[game_state->board_count-i].row == 0){
+                    pl0->row += 1;
+                    if (pl0->row == 0){
                         set_ptr_rxc(game_state, 
-                                    &game_state->board[game_state->board_count-i]); 
+                                    pl0); 
                     }
                 }
             }
@@ -402,12 +459,12 @@ void move_blocks_down(game_state_t *game_state)
             
                 if (game_state->rot_ind == 0){
                     move_block(game_state, 
-                               &game_state->board[game_state->board_count-i],
+                               pl0,
                                0, 1, false);
                 }
                 else {
                     move_block(game_state, 
-                               game_state->pl_blk1+i,
+                               pl1,
                                0, 1, false);
                 }
             }
@@ -415,6 +472,87 @@ void move_blocks_down(game_state_t *game_state)
         }
         game_state->pl_down_time = 0;
     }
+}
+
+
+void test_block(game_state_t *game_state, block_t *blk){
+    
+    if (blk == 0){
+        return;
+    }
+    
+    if (game_state->being_matched == 0){
+        game_state->being_matched = blk;
+        game_state->board_copy[blk->row][blk->col] = 0;
+    }
+    else if (compare_color(&game_state->being_matched->color, &blk->color)){
+        game_state->matches += 1;
+        game_state->board_copy[blk->row][blk->col] = 0;
+        
+    }
+    else {
+        return;
+    }
+
+    if (blk->col > 0){
+        test_block(game_state, game_state->board_copy[blk->row][blk->col-1]);
+    }
+    if (blk->col < COLUMNS-1){
+        test_block(game_state, game_state->board_copy[blk->row][blk->col+1]); 
+    
+    }
+
+    if (blk->row > 0){
+        test_block(game_state, game_state->board_copy[blk->row-1][blk->col]); 
+    }
+    if (blk->row < ROWS-1){
+        test_block(game_state, game_state->board_copy[blk->row+1][blk->col]);
+    }
+    if (game_state->matches >= 3){
+        game_state->matched = true;
+        blk->del = true;
+        game_state->board_colors[blk->row][blk->col] = 0;
+    }
+}
+
+void copy_board(game_state_t *game_state){
+    for (int j=0; j < ROWS; ++j){
+        for (int k=0; k < COLUMNS; ++k){
+            game_state->board_copy[j][k] = game_state->board_colors[j][k];
+        }
+    }
+}
+
+void test_match(game_state_t *game_state)
+{
+    copy_board(game_state);
+    
+    for (int j=0; j < ROWS; ++j){
+        for (int k=0; k < COLUMNS; ++k){
+            if (game_state->board_copy[j][k] !=0){
+                game_state->being_matched = 0;
+                game_state->matches = 0;
+                test_block(game_state, game_state->board_copy[j][k]);
+
+            }
+        }
+    }
+}
+
+bool move_all_down(game_state_t *game_state){
+    bool retvl = false;
+
+    for (int c=0; c < COLUMNS; ++c){
+        for (int r=ROWS-1; r >= 0; --r){
+            if (game_state->board_colors[r][c] !=0){
+                block_t *blk = game_state->board_colors[r][c];
+                if (move_block(game_state, blk, 0,1,1)){
+                    retvl = true;
+                }
+            }
+        }
+    }
+    return retvl;
 }
 
 void game_update_drawing(game_state_t *game_state) 
@@ -436,27 +574,39 @@ void game_update_drawing(game_state_t *game_state)
             
                 switch(check_collisions(game_state))
                 {
-                    case -1:
-                        process_input(game_state);
-                        move_blocks_down(game_state);
-                        break;
-                    case 0:
-                            game_state->pl_down_time += GetFrameTime();
-                        if (game_state->pl_down_time > 0.05){
-                            move_block(game_state, game_state->pl_blk1, 0, 1, false);
-                            game_state->pl_down_time = 0;
+            		case -1:
+            		    process_input(game_state);
+            		    move_blocks_down(game_state);
+            		    break;
+            		case 0:
+            		    game_state->pl_down_time += GetFrameTime();
+            		    if (game_state->pl_down_time > 0.05){
+            			move_block(game_state, game_state->pl_blk1, 0, 1, false);
+            			game_state->pl_down_time = 0;
+            		    }
+            		    break;
+            		case 1:
+            		    game_state->pl_down_time += GetFrameTime();
+            		    if (game_state->pl_down_time > 0.05){
+            			move_block(game_state, game_state->pl_blk0, 0, 1, false);
+            			game_state->pl_down_time = 0;
+            		    }
+            		    break;
+            		case 2:
+                        if (game_state->matched){
+            		        game_state->pl_down_time += GetFrameTime();
+            		        if (game_state->pl_down_time > 0.05){
+                                if (!move_all_down(game_state)){
+                                    game_state->matched = 0;
+                                    test_match(game_state);
+                                }
+            			        game_state->pl_down_time = 0;
+            		        }
+                        }else{
+                            test_match(game_state);
                         }
-                        break;
-                    case 1:
-                            game_state->pl_down_time += GetFrameTime();
-                        if (game_state->pl_down_time > 0.05){
-                            move_block(game_state, game_state->pl_blk0, 0, 1, false);
-                            game_state->pl_down_time = 0;
-                        }
-                        break;
-                    case 2:
-                        break;
-                
+            		    break;
+                            
                 }
             }
         }
@@ -464,21 +614,21 @@ void game_update_drawing(game_state_t *game_state)
     
     BeginDrawing();
 
-        draw_board_layer(game_state);
-        if (!game_state->started) {
-            DrawText("Game Starting !!",
-                    SCREEN_WIDTH /1.7  - (MeasureText("Game Starting!!", 38)/2)
-                    , SCREEN_HEIGHT - 220, 38, DARKGRAY);
-            DrawText("\nArrow keys to MOVE",
-                    SCREEN_WIDTH /1.7  - (MeasureText("Arrow keys to MOVE", 38)/2)
-                    , SCREEN_HEIGHT - 220, 38, GREEN);
-            DrawText("\n\nZ to Rotate",
-                    SCREEN_WIDTH /1.7  - (MeasureText("Z to Rotate", 38)/2)
-                    , SCREEN_HEIGHT - 220, 38, DARKGRAY);
-        }
-        else {
-            draw_board_entities(game_state);
-        }       
+    draw_board_layer(game_state);
+    if (!game_state->started) {
+    	DrawText("Game Starting !!",
+    		 SCREEN_WIDTH /1.7  - (MeasureText("Game Starting!!", 38)/2)
+    		 , SCREEN_HEIGHT - 220, 38, DARKGRAY);
+    	DrawText("\nArrow keys to MOVE",
+    		 SCREEN_WIDTH /1.7  - (MeasureText("Arrow keys to MOVE", 38)/2)
+    		 , SCREEN_HEIGHT - 220, 38, GREEN);
+    	DrawText("\n\nZ to Rotate",
+    		 SCREEN_WIDTH /1.7  - (MeasureText("Z to Rotate", 38)/2)
+    		 , SCREEN_HEIGHT - 220, 38, DARKGRAY);
+    }
+    else {
+    	draw_board_entities(game_state);
+    }       
     
         
     EndDrawing();
