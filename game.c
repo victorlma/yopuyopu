@@ -595,7 +595,7 @@ void game_update_drawing(game_state_t *game_state)
             		case 2:
                         if (game_state->matched){
             		        game_state->pl_down_time += GetFrameTime();
-            		        if (game_state->pl_down_time > 0.05){
+            		        if (game_state->pl_down_time > 0.1){
                                 if (!move_all_down(game_state)){
                                     game_state->matched = 0;
                                     test_match(game_state);
