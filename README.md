@@ -6,7 +6,6 @@ Clone do jogo Puyo Puyo feito para testar a [Raylib](https://github.com/raysan5/
 
 ## TODOs
 
- * Algoritmo de combinação de quatro ou mais peças
  * Sistema de pontos
  * Peças Inuteis
  * Multiplayer
