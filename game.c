@@ -16,7 +16,6 @@ static Rectangle score_rect = {NEXT_BEGIN_POS-2, PADDING * 6, (SQR_SIZE*2)+4, 28
 static Color    colors[5] = {LIME, DARKBLUE, GOLD, DARKPURPLE, RED};
 
 static Color blank = BLANK;
-
 bool compare_color(Color *c1, Color *c2){
     if (c1->r == c2->r && c1->g == c2->g && c1->b == c2->b){
         return true;
@@ -300,9 +299,7 @@ void init_turn(game_state_t *game_state)
 {
 
     if (!game_state->started){
-        game_state->pl_next_time += GetFrameTime();
-        if (game_state->pl_next_time > 3.0f || IsKeyPressed(KEY_Z)) {
-            game_state->pl_next_time = 0;
+        if (IsKeyPressed(KEY_Z)) {
             game_state->pl_control = 0;
             game_state->started = 1;
         }
@@ -544,8 +541,8 @@ void test_block(game_state_t *game_state, block_t *blk){
         }
         blk->del = true;
         game_state->board_colors[blk->row][blk->col] = 0;
-        game_state->score.cur += 10*game_state->matches;
-        game_state->score.total += 10*game_state->matches;
+        game_state->score.cur += (10*game_state->matches)+10;
+        game_state->score.total += (10*game_state->matches)+10;
     }
 }
 
@@ -589,7 +586,7 @@ bool move_all_down(game_state_t *game_state){
     return retvl;
 }
 
-void game_update_drawing(game_state_t *game_state) 
+void game_update_drawing(game_state_t *game_state, songs_t *songs) 
 {
     
     
@@ -656,8 +653,8 @@ void game_update_drawing(game_state_t *game_state)
     	DrawText("\nArrow keys to MOVE",
     		 SCREEN_WIDTH /1.7  - (MeasureText("Arrow keys to MOVE", 38)/2)
     		 , SCREEN_HEIGHT - 220, 38, GREEN);
-    	DrawText("\n\nZ to Rotate",
-    		 SCREEN_WIDTH /1.7  - (MeasureText("Z to Rotate", 38)/2)
+    	DrawText("\n\nZ and X to Rotate",
+    		 SCREEN_WIDTH /1.7  - (MeasureText("Z and X to Rotate", 38)/2)
     		 , SCREEN_HEIGHT - 220, 38, DARKGRAY);
     }
     else {
@@ -667,4 +664,25 @@ void game_update_drawing(game_state_t *game_state)
         
     EndDrawing();
     
+    if (game_state->started){
+        if (IsMusicStreamPlaying(songs->intro_song)){
+            StopMusicStream(*songs->stream);
+        }
+        songs->stream = &songs->game_song;
+        if (!IsMusicStreamPlaying(songs->game_song)){
+           PlayMusicStream(*songs->stream);
+        }
+
+    }
+    else{
+    
+        if (IsMusicStreamPlaying(songs->game_song)){
+            StopMusicStream(*songs->stream);
+        }
+        songs->stream = &songs->intro_song;
+        if (!IsMusicStreamPlaying(songs->intro_song)){
+           PlayMusicStream(*songs->stream);
+        }
+    }
+    UpdateMusicStream(*songs->stream);
 }

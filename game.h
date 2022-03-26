@@ -19,6 +19,11 @@ typedef struct {
     int32_t     total;
 } score_t;
 typedef struct {
+    Music   intro_song;
+    Music   game_song;
+    Music   *stream;
+} songs_t;
+typedef struct {
     int32_t     nb_count;
     int32_t     board_count;
     int32_t     rot_ind;
