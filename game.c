@@ -12,7 +12,7 @@ static Rectangle    next_positions[NEXT_NUM] = {
     (Rectangle) {(NEXT_BEGIN_POS + SQR_SIZE) , (PADDING + SQR_SIZE) , SQR_SIZE, SQR_SIZE},
 };
 
-
+static Rectangle score_rect = {NEXT_BEGIN_POS-2, PADDING * 6, (SQR_SIZE*2)+4, 28*3};
 static Color    colors[5] = {LIME, DARKBLUE, GOLD, PURPLE, RED};
 
 static Color blank = BLANK;
@@ -26,12 +26,37 @@ bool compare_color(Color *c1, Color *c2){
     }
 }
 
+void display_score(game_state_t *game_state){
+    int32_t font_size = 22;
+    
+    char *cur_text =TextFormat("%05i",game_state->score.cur);
+    int32_t cur_size = MeasureText(cur_text, font_size);
+    DrawText(cur_text,
+            NEXT_BEGIN_POS+SQR_SIZE-(cur_size/2), 
+            PADDING*6+10, 
+            font_size, BLACK);
+
+    cur_text =TextFormat("%05i",game_state->score.prev);
+    cur_size = MeasureText(cur_text, font_size);
+    DrawText(cur_text,
+            NEXT_BEGIN_POS+SQR_SIZE-(cur_size/2), 
+            PADDING*7+10, 
+            font_size, BLACK);
+    cur_text =TextFormat("%05i",game_state->score.total);
+    cur_size = MeasureText(cur_text, font_size);
+    DrawText(cur_text,
+            NEXT_BEGIN_POS+SQR_SIZE-(cur_size/2), 
+            PADDING*8+10, 
+            font_size, BLACK);
+}
 
 void lose(game_state_t *game_state)
 {
     game_state_t gm = {0};
     gm.pl_control = 1;
     gm.board_count = -1;
+    gm.score.prev = game_state->score.prev;
+    gm.score.total = game_state->score.total;
     *game_state = gm;
 }
 
@@ -59,7 +84,9 @@ void draw_board_layer(game_state_t *game_state)
     DrawRectangleLinesEx(board_rect, LINE_THICK, BLACK);
     DrawRectangleRec(next_rect, BLACK);
     DrawRectangleLinesEx(next_rect, LINE_THICK, BLACK);
-
+    DrawRectangleRec(score_rect, GRAY);
+    DrawRectangleLinesEx(score_rect, LINE_THICK*2, BLACK);
+    display_score(game_state);
     draw_next_blocks(game_state);
 }
 
@@ -335,7 +362,6 @@ void init_turn(game_state_t *game_state)
                 game_state->nb_count = 2;
                 game_state->pl_control = 1;
                 game_state->rot_ind = 0;
-                game_state->matched = false;
                 game_state->pl_turn_time = 0;   
             }
 
@@ -518,6 +544,8 @@ void test_block(game_state_t *game_state, block_t *blk){
         }
         blk->del = true;
         game_state->board_colors[blk->row][blk->col] = 0;
+        game_state->score.cur += 10*game_state->matches;
+        game_state->score.total += 10*game_state->matches;
     }
 }
 

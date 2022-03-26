@@ -13,7 +13,11 @@ typedef struct {
 
 } block_t;
 
-
+typedef struct {
+    int32_t     cur;
+    int32_t     prev;
+    int32_t     total;
+} score_t;
 typedef struct {
     int32_t     nb_count;
     int32_t     board_count;
@@ -34,5 +38,6 @@ typedef struct {
     block_t     *pl_blk0;
     block_t     *pl_blk1;
     block_t     *being_matched;
+    score_t       score;
 } game_state_t;
 #endif
