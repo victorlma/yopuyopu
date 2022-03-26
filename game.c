@@ -444,7 +444,7 @@ void move_blocks_down(game_state_t *game_state)
 {
 
     game_state->pl_down_time += GetFrameTime();
-    if (game_state->pl_down_time > .3f) {
+    if (game_state->pl_down_time > .25f) {
         block_t *pl0;
         block_t *pl1;
         for (int i=0; i < 2; i++) {
