@@ -13,7 +13,7 @@ static Rectangle    next_positions[NEXT_NUM] = {
 };
 
 static Rectangle score_rect = {NEXT_BEGIN_POS-2, PADDING * 6, (SQR_SIZE*2)+4, 28*3};
-static Color    colors[5] = {LIME, DARKBLUE, GOLD, PURPLE, RED};
+static Color    colors[5] = {LIME, DARKBLUE, GOLD, DARKPURPLE, RED};
 
 static Color blank = BLANK;
 
@@ -34,20 +34,20 @@ void display_score(game_state_t *game_state){
     DrawText(cur_text,
             NEXT_BEGIN_POS+SQR_SIZE-(cur_size/2), 
             PADDING*6+10, 
-            font_size, BLACK);
+            font_size, GREEN);
 
     cur_text =TextFormat("%05i",game_state->score.prev);
     cur_size = MeasureText(cur_text, font_size);
     DrawText(cur_text,
             NEXT_BEGIN_POS+SQR_SIZE-(cur_size/2), 
             PADDING*7+10, 
-            font_size, BLACK);
+            font_size, GRAY);
     cur_text =TextFormat("%05i",game_state->score.total);
     cur_size = MeasureText(cur_text, font_size);
     DrawText(cur_text,
             NEXT_BEGIN_POS+SQR_SIZE-(cur_size/2), 
             PADDING*8+10, 
-            font_size, BLACK);
+            font_size, DARKPURPLE);
 }
 
 void lose(game_state_t *game_state)
@@ -55,7 +55,7 @@ void lose(game_state_t *game_state)
     game_state_t gm = {0};
     gm.pl_control = 1;
     gm.board_count = -1;
-    gm.score.prev = game_state->score.prev;
+    gm.score.prev = game_state->score.cur;
     gm.score.total = game_state->score.total;
     *game_state = gm;
 }
@@ -84,8 +84,8 @@ void draw_board_layer(game_state_t *game_state)
     DrawRectangleLinesEx(board_rect, LINE_THICK, BLACK);
     DrawRectangleRec(next_rect, BLACK);
     DrawRectangleLinesEx(next_rect, LINE_THICK, BLACK);
-    DrawRectangleRec(score_rect, GRAY);
-    DrawRectangleLinesEx(score_rect, LINE_THICK*2, BLACK);
+    DrawRectangleRec(score_rect, BLACK);
+    DrawRectangleLinesEx(score_rect, LINE_THICK*2, GRAY);
     display_score(game_state);
     draw_next_blocks(game_state);
 }
