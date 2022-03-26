@@ -2,7 +2,7 @@
 
 Clone do jogo Puyo Puyo feito para testar a [Raylib](https://github.com/raysan5/raylib)
 
-![yopuyopu](https://user-images.githubusercontent.com/100252586/158835971-ae9655a8-c7f0-4547-a8eb-47af5c4e9985.png)
+![yopuyopu](https://user-images.githubusercontent.com/100252586/160244575-925fdb52-e4ce-4270-94e6-628776edd583.png)
 
 ## TODOs
 
