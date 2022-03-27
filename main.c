@@ -23,7 +23,7 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "yopuyopu");
     SetTargetFPS(60);   
     InitAudioDevice();
-    SetMasterVolume(0.2);
+    SetMasterVolume(0.6);
     game_state_t    game_state = {0};   
     game_state.pl_control = 1;
     game_state.board_count = -1;

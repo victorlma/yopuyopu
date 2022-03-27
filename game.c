@@ -429,6 +429,9 @@ int32_t check_collisions(game_state_t *game_state){
         }
     
     }
+    if (game_state->matched == true){
+        return 2;
+    }
     if (game_state->pl_blk0->stopped && !game_state->pl_blk1->stopped){
         return 0;
     }
