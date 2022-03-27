@@ -244,7 +244,11 @@ void process_input(game_state_t *game_state)
     if ((game_state->pl_blk1->col == 2 && game_state->pl_blk1->row == -1 && (
 	     game_state->board_colors[game_state->pl_blk0->row+1][game_state->pl_blk0->col] != 0 &&
 	     game_state->board_colors[game_state->pl_blk1->row+1][game_state->pl_blk1->col] != 0 )
-	    ) || (game_state->pl_blk1->col == 2 && game_state->pl_blk1->row == -2 ))
+	    ) || (game_state->pl_blk1->col == 2 && game_state->pl_blk1->row == -2 )
+          || (game_state->rot_ind == 0 && game_state->pl_blk0->row > 0 && IsKeyDown(KEY_LEFT) && game_state->board_colors[game_state->pl_blk0->row][game_state->pl_blk0->col-1] != 0)
+          || (game_state->rot_ind == 0 && game_state->pl_blk0->row > 0 && IsKeyDown(KEY_RIGHT) && game_state->board_colors[game_state->pl_blk0->row][game_state->pl_blk0->col+1] != 0)
+          || (game_state->rot_ind == 2 && game_state->pl_blk1->row > 0 && IsKeyDown(KEY_LEFT) && game_state->board_colors[game_state->pl_blk1->row][game_state->pl_blk1->col-1] != 0)
+          || (game_state->rot_ind == 2 && game_state->pl_blk1->row > 0 && IsKeyDown(KEY_RIGHT) && game_state->board_colors[game_state->pl_blk1->row][game_state->pl_blk1->col+1] != 0))
     {;}
     else {          
 	if (IsKeyDown(KEY_RIGHT) && !IsKeyDown(KEY_LEFT)) {
