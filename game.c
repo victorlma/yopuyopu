@@ -520,6 +520,9 @@ void move_blocks_down(game_state_t *game_state)
                 }
                 else {
                     pl0->row += 1;
+                    if ( i == 1 && game_state->board_colors[pl0->row][pl0->col] != 0){
+                        pl1->del = true;
+                    }
                     if (pl0->row == 0){
                         set_ptr_rxc(game_state, 
                                     pl0); 

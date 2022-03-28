@@ -36,7 +36,7 @@ typedef struct {
     float       pl_side_time;
     float       pl_turn_time;
     block_t     next[NEXT_NUM];
-    block_t     board[ROWS*COLUMNS];
+    block_t     board[ROWS*COLUMNS*2];
     block_t    *board_colors[ROWS][COLUMNS];
     block_t    *board_copy[ROWS][COLUMNS];
     block_t     *ml[ROWS*COLUMNS]; //matched_list
