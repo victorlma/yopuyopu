@@ -41,24 +41,24 @@ void draw_color_line(block_t * (*board)[ROWS][COLUMNS], block_t *blk){
         (Vector2) {PADDING+(SQR_SIZE*(blk->col+1))-LN2, PADDING+((blk->row)*SQR_SIZE)}, 
     };
     if (((*board)[blk->row][blk->col+1] != 0 ) && 
-        compare_color(&blk->color, &(*board)[blk->row][blk->col+1]->color)){
+        compare_color(&blk->color, &(*board)[blk->row][blk->col+1]->color) && blk->col < COLUMNS -1){
             
         DrawLineEx(cl_start[0], cl_end[0], LINE_THICK*2, blk->color);
     }
 
     if (((*board)[blk->row][blk->col-1] != 0 ) && 
-        compare_color(&blk->color, &(*board)[blk->row][blk->col-1]->color)){
+        compare_color(&blk->color, &(*board)[blk->row][blk->col-1]->color) && blk->col > 0){
             
         DrawLineEx(cl_start[1], cl_end[1], LINE_THICK*2, blk->color);
     }
     
     if (((*board)[blk->row+1][blk->col] != 0 ) && 
-        compare_color(&blk->color, &(*board)[blk->row+1][blk->col]->color)){
+        compare_color(&blk->color, &(*board)[blk->row+1][blk->col]->color) && blk->row < ROWS-1){
             
         DrawLineEx(cl_start[2], cl_end[2], LINE_THICK*2, blk->color);
     }
     if (((*board)[blk->row-1][blk->col] != 0 ) && 
-        compare_color(&blk->color, &(*board)[blk->row-1][blk->col]->color)){
+        compare_color(&blk->color, &(*board)[blk->row-1][blk->col]->color) && blk->row > 0){
             
         DrawLineEx(cl_start[3], cl_end[3], LINE_THICK*2, blk->color);
     }
