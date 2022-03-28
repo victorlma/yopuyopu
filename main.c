@@ -9,6 +9,7 @@
 #define SQR_SIZE    38
 #define NEXT_NUM    4
 #define LINE_THICK  2
+#define LN2 4
 #define PADDING     20
 
 #define NEXT_BEGIN_POS (PADDING + (COLUMNS * SQR_SIZE) + PADDING)

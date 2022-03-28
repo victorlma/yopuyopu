@@ -16,6 +16,8 @@ static Rectangle score_rect = {NEXT_BEGIN_POS-2, PADDING * 6, (SQR_SIZE*2)+4, 28
 static Color    colors[5] = {LIME, DARKBLUE, GOLD, DARKPURPLE, RED};
 
 static Color blank = BLANK;
+
+
 bool compare_color(Color *c1, Color *c2){
     if (c1->r == c2->r && c1->g == c2->g && c1->b == c2->b){
         return true;
@@ -24,6 +26,44 @@ bool compare_color(Color *c1, Color *c2){
         return false;
     }
 }
+
+void draw_color_line(block_t * (*board)[ROWS][COLUMNS], block_t *blk){
+    Vector2 cl_start[4] = {
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col+1)), PADDING+(blk->row*SQR_SIZE)+LN2}, 
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col)), PADDING+(blk->row*SQR_SIZE)+LN2}, 
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col))+LN2, PADDING+((blk->row)*SQR_SIZE)+SQR_SIZE}, 
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col))+LN2, PADDING+((blk->row)*SQR_SIZE)}, 
+    };
+    Vector2 cl_end[4] = {
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col+1)), PADDING+(blk->row*SQR_SIZE)+SQR_SIZE-LN2}, 
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col)), PADDING+(blk->row*SQR_SIZE)+SQR_SIZE-LN2}, 
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col+1))-LN2, PADDING+((blk->row)*SQR_SIZE)+SQR_SIZE}, 
+        (Vector2) {PADDING+(SQR_SIZE*(blk->col+1))-LN2, PADDING+((blk->row)*SQR_SIZE)}, 
+    };
+    if (((*board)[blk->row][blk->col+1] != 0 ) && 
+        compare_color(&blk->color, &(*board)[blk->row][blk->col+1]->color)){
+            
+        DrawLineEx(cl_start[0], cl_end[0], LINE_THICK*2, blk->color);
+    }
+
+    if (((*board)[blk->row][blk->col-1] != 0 ) && 
+        compare_color(&blk->color, &(*board)[blk->row][blk->col-1]->color)){
+            
+        DrawLineEx(cl_start[1], cl_end[1], LINE_THICK*2, blk->color);
+    }
+    
+    if (((*board)[blk->row+1][blk->col] != 0 ) && 
+        compare_color(&blk->color, &(*board)[blk->row+1][blk->col]->color)){
+            
+        DrawLineEx(cl_start[2], cl_end[2], LINE_THICK*2, blk->color);
+    }
+    if (((*board)[blk->row-1][blk->col] != 0 ) && 
+        compare_color(&blk->color, &(*board)[blk->row-1][blk->col]->color)){
+            
+        DrawLineEx(cl_start[3], cl_end[3], LINE_THICK*2, blk->color);
+    }
+}
+
 
 void display_score(game_state_t *game_state){
     int32_t font_size = 22;
@@ -397,6 +437,7 @@ void draw_board_entities(game_state_t *game_state)
               
       DrawRectangleRec(block_rect, game_state->board[i].color);
       DrawRectangleLinesEx(block_rect, LINE_THICK, BLACK);
+      draw_color_line(&game_state->board_colors, &game_state->board[i]);
       }
     }
 }
