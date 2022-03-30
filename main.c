@@ -2,8 +2,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SCREEN_WIDTH    800
-#define SCREEN_HEIGHT   600
+#define SCREEN_WIDTH    1280
+#define SCREEN_HEIGHT   720
 #define ROWS        12
 #define COLUMNS     6
 #define SQR_SIZE    38
@@ -21,6 +21,8 @@
 
 int main(void)
 {
+
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "yopuyopu");
     SetTargetFPS(60);   
     InitAudioDevice();
@@ -28,8 +30,8 @@ int main(void)
     game_state_t    game_state = {0};   
     game_state.pl_control = 1;
     game_state.board_count = -1;
-    songs_t songs;
 
+    songs_t songs;
     songs.intro_song = LoadMusicStream("audio/intro128.mp3");
     songs.intro_song.looping = true;
     songs.game_song = LoadMusicStream("audio/game128.mp3");

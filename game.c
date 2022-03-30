@@ -18,6 +18,14 @@ static Color    colors[5] = {LIME, DARKBLUE, GOLD, DARKPURPLE, RED};
 static Color blank = BLANK;
 
 
+void update_cam(Camera2D *cam){
+    cam->target = (Vector2) {SCREEN_WIDTH/2,SCREEN_HEIGHT/2};
+    float wq = (float) GetScreenWidth() / (float) SCREEN_WIDTH ;
+    float hq = (float) GetScreenHeight() / (float) SCREEN_HEIGHT;
+    cam->offset = (Vector2) {GetScreenWidth()/2.0f,GetScreenHeight()/2.0f};
+    float minorz = wq <= hq ? wq : hq;
+    cam->zoom =  minorz;
+}
 bool compare_color(Color *c1, Color *c2){
     if (c1->r == c2->r && c1->g == c2->g && c1->b == c2->b){
         return true;
@@ -118,7 +126,8 @@ void draw_next_blocks(game_state_t *game_state)
 
 void draw_board_layer(game_state_t *game_state)
 {
-    ClearBackground(RAYWHITE);
+    ClearBackground(GetColor(0x001424ff));
+    DrawRectangleRec((Rectangle) {0,0,SCREEN_WIDTH, SCREEN_HEIGHT}, RAYWHITE);
     DrawRectangleRec(board_rect, GRAY);
     DrawRectangleLinesEx(board_rect, LINE_THICK, BLACK);
     DrawRectangleRec(next_rect, BLACK);
@@ -694,8 +703,10 @@ void game_update_drawing(game_state_t *game_state, songs_t *songs)
         }
     }
     
+    update_cam(&game_state->cam);
     BeginDrawing();
 
+    BeginMode2D(game_state->cam);
     draw_board_layer(game_state);
     if (!game_state->started) {
     	DrawText("Game Starting !!",
@@ -713,6 +724,7 @@ void game_update_drawing(game_state_t *game_state, songs_t *songs)
     }       
     
         
+    EndMode2D();
     EndDrawing();
     
     if (game_state->started){

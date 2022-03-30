@@ -44,5 +44,6 @@ typedef struct {
     block_t     *pl_blk1;
     block_t     *being_matched;
     score_t       score;
+    Camera2D      cam;
 } game_state_t;
 #endif
