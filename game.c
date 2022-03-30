@@ -126,7 +126,7 @@ void draw_next_blocks(game_state_t *game_state)
 
 void draw_board_layer(game_state_t *game_state)
 {
-    ClearBackground(GetColor(0x001424ff));
+    ClearBackground(RAYWHITE);
     DrawRectangleRec((Rectangle) {0,0,SCREEN_WIDTH, SCREEN_HEIGHT}, RAYWHITE);
     DrawRectangleRec(board_rect, GRAY);
     DrawRectangleLinesEx(board_rect, LINE_THICK, BLACK);
